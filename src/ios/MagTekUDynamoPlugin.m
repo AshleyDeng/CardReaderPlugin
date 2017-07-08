@@ -15,9 +15,9 @@
 
 - (void)pluginInitialize
 {
-	self.mMagTek = [[MTSCRA alloc] init];
+    self.mMagTek = [[MTSCRA alloc] init];
     
-	[[NSNotificationCenter defaultCenter] addObserver:self
+    [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(trackDataReady:)
                                                  name:@"trackDataReadyNotification"
                                                object:nil];
@@ -32,45 +32,46 @@
 
 - (void)isDeviceConnected:(CDVInvokedUrlCommand*)command
 {
-	CDVPluginResult* pluginResult = nil;
+    CDVPluginResult* pluginResult = nil;
     
-	//Make MagTek call to check if device is connected
-	if(self.mMagTek != nil) {
-		self.mDeviceConnected = [self.mMagTek isDeviceConnected];
-		pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:self.mDeviceConnected];
-	}
-	else {
-		pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"MagTek Plugin was not properly initialized."];
-	}
+    //Make MagTek call to check if device is connected
+    if(self.mMagTek != nil) {
+        self.mDeviceConnected = [self.mMagTek isDeviceConnected];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:self.mDeviceConnected];
+    }
+    else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"MagTek Plugin was not properly initialized."];
+    }
     
-	[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)isDeviceOpened:(CDVInvokedUrlCommand*)command
 {
-	CDVPluginResult* pluginResult = nil;
+    CDVPluginResult* pluginResult = nil;
     
-	//Make MagTek call to check if device is opened
-	if(self.mMagTek != nil) {
-		self.mDeviceOpened = [self.mMagTek isDeviceOpened];
-		pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:self.mDeviceOpened];
-	}
-	else {
-		pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"MagTek Plugin was not properly initialized."];
-	}
+    //Make MagTek call to check if device is opened
+    if(self.mMagTek != nil) {
+        self.mDeviceOpened = [self.mMagTek isDeviceOpened];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:self.mDeviceOpened];
+    }
+    else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"MagTek Plugin was not properly initialized."];
+    }
     
-	[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)openDevice:(CDVInvokedUrlCommand*)command
 {
-	CDVPluginResult* pluginResult = nil;
+    CDVPluginResult* pluginResult = nil;
     
-	//Open MagTek device to start reading card data
-	if(self.mMagTek != nil) {
+    //Open MagTek device to start reading card data
+    if(self.mMagTek != nil) {
         if(![self mDeviceOpened]) {
-            [self.mMagTek setDeviceType:(MAGTEKIDYNAMO)];
-            [self.mMagTek setDeviceProtocolString:(@"com.magtek.idynamo")];
+            //Lets try an uDynamo Reader
+            [self.mMagTek setDeviceType:(MAGTEKAUDIOREADER)];
+            [self.mMagTek setDeviceProtocolString:(@"com.magtek.udynamo")];
             
             self.mDeviceOpened = [self.mMagTek openDevice];
             if([self.mMagTek isDeviceConnected]) {
@@ -86,12 +87,10 @@
                 pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:self.mDeviceOpened];
             }
             else {
-                //Lets try an uDynamo Reader
-                [self.mMagTek setDeviceType:(MAGTEKAUDIOREADER)];
-                [self.mMagTek setDeviceProtocolString:(@"com.magtek.udynamo")];
+                [self.mMagTek setDeviceType:(MAGTEKIDYNAMO)];
+                [self.mMagTek setDeviceProtocolString:(@"com.magtek.idynamo")];
                 
                 self.mDeviceOpened = [self.mMagTek openDevice];
-                
                 if([self.mMagTek isDeviceConnected]) {
                     self.mDeviceConnected = true;
                     
@@ -116,66 +115,66 @@
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Reader already open."];
         }
     }
-	else {
-		pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"MagTek Plugin was not properly initialized."];
-	}
+    else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"MagTek Plugin was not properly initialized."];
+    }
     
-	[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)closeDevice:(CDVInvokedUrlCommand*)command
 {
-	CDVPluginResult* pluginResult = nil;
+    CDVPluginResult* pluginResult = nil;
     
-	//Close MagTek device to stop listening to card data and wasting energy
-	if(self.mMagTek != nil) {
-		self.mDeviceOpened = ![self.mMagTek closeDevice];
-		pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:!self.mDeviceOpened];
-	}
-	else {
-		pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"MagTek Plugin was not properly initialized."];
-	}
+    //Close MagTek device to stop listening to card data and wasting energy
+    if(self.mMagTek != nil) {
+        self.mDeviceOpened = ![self.mMagTek closeDevice];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:!self.mDeviceOpened];
+    }
+    else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"MagTek Plugin was not properly initialized."];
+    }
     
-	[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)listenForEvents:(CDVInvokedUrlCommand*)command
 {
-	CDVPluginResult* pluginResult = nil;
+    CDVPluginResult* pluginResult = nil;
     
-	//Listen for specific events only
-	if(self.mMagTek != nil) {
-		int i;
-		NSString* event;
-		UInt32 event_types = 0;
+    //Listen for specific events only
+    if(self.mMagTek != nil) {
+        int i;
+        NSString* event;
+        UInt32 event_types = 0;
         
-		for(i = 0; i < [command.arguments count]; i++) {
-			event = [command.arguments objectAtIndex:i];
+        for(i = 0; i < [command.arguments count]; i++) {
+            event = [command.arguments objectAtIndex:i];
             
-			if([event  isEqual: @"TRANS_EVENT_OK"]) {
-				event_types |= TRANS_EVENT_OK;
-			}
-			if([event  isEqual: @"TRANS_EVENT_ERROR"]) {
-				event_types |= TRANS_EVENT_ERROR;
-			}
-			if([event  isEqual: @"TRANS_EVENT_START"]) {
-				event_types |= TRANS_EVENT_START;
-			}
-		}
+            if([event  isEqual: @"TRANS_EVENT_OK"]) {
+                event_types |= TRANS_EVENT_OK;
+            }
+            if([event  isEqual: @"TRANS_EVENT_ERROR"]) {
+                event_types |= TRANS_EVENT_ERROR;
+            }
+            if([event  isEqual: @"TRANS_EVENT_START"]) {
+                event_types |= TRANS_EVENT_START;
+            }
+        }
         
-		[self.mMagTek listenForEvents:event_types];
+        [self.mMagTek listenForEvents:event_types];
         
         self.mTrackDataListenerCallbackId = command.callbackId;
-	}
-	else {
-		pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"MagTek Plugin was not properly initialized."];
-		[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-	}
+    }
+    else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"MagTek Plugin was not properly initialized."];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }
 }
 
 - (void)returnData
 {
-	NSMutableDictionary* data = [NSMutableDictionary dictionaryWithObjectsAndKeys: nil];
+    NSMutableDictionary* data = [NSMutableDictionary dictionaryWithObjectsAndKeys: nil];
     
     if(self.mMagTek != nil)
     {
@@ -204,18 +203,18 @@
             [data setObject:[self.mMagTek getCapMagStripeEncryption] forKey:@"Encryption.Capability"];
 
             [data setObject:[self.mMagTek getCardIIN] forKey:@"Card.IIN"];
-        	[data setObject:[self.mMagTek getCardName] forKey:@"Card.Name"];
-        	[data setObject:[self.mMagTek getCardLast4] forKey:@"Card.Last4"];
-        	[data setObject:[self.mMagTek getCardExpDate] forKey:@"Card.ExpDate"];
-        	[data setObject:[self.mMagTek getCardServiceCode] forKey:@"Card.ServiceCode"];
-        	[data setObject:[self.mMagTek getTrack1Masked] forKey:@"Track1.Masked"];
-        	[data setObject:[self.mMagTek getTrack2Masked] forKey:@"Track2.Masked"];
-        	[data setObject:[self.mMagTek getTrack3Masked] forKey:@"Track3.Masked"];
-        	[data setObject:[self.mMagTek getTrack1] forKey:@"Track1"];
-        	[data setObject:[self.mMagTek getTrack2] forKey:@"Track2"];
-        	[data setObject:[self.mMagTek getTrack3] forKey:@"Track3"];
-        	[data setObject:[self.mMagTek getMagnePrint] forKey:@"MagnePrint"];
-        	[data setObject:[self.mMagTek getResponseData] forKey:@"RawResponse"];
+            [data setObject:[self.mMagTek getCardName] forKey:@"Card.Name"];
+            [data setObject:[self.mMagTek getCardLast4] forKey:@"Card.Last4"];
+            [data setObject:[self.mMagTek getCardExpDate] forKey:@"Card.ExpDate"];
+            [data setObject:[self.mMagTek getCardServiceCode] forKey:@"Card.ServiceCode"];
+            [data setObject:[self.mMagTek getTrack1Masked] forKey:@"Track1.Masked"];
+            [data setObject:[self.mMagTek getTrack2Masked] forKey:@"Track2.Masked"];
+            [data setObject:[self.mMagTek getTrack3Masked] forKey:@"Track3.Masked"];
+            [data setObject:[self.mMagTek getTrack1] forKey:@"Track1"];
+            [data setObject:[self.mMagTek getTrack2] forKey:@"Track2"];
+            [data setObject:[self.mMagTek getTrack3] forKey:@"Track3"];
+            [data setObject:[self.mMagTek getMagnePrint] forKey:@"MagnePrint"];
+            [data setObject:[self.mMagTek getResponseData] forKey:@"RawResponse"];
             
             /*
              NSString *pResponse = [NSString stringWithFormat:@"Response.Type: %@\n" - [self.mMagTek getResponseType],
@@ -257,7 +256,7 @@
         }
         else
         {
-        	[data setObject:[self.mMagTek getResponseType] forKey:@"Response.Type"];
+            [data setObject:[self.mMagTek getResponseType] forKey:@"Response.Type"];
             [data setObject:[self.mMagTek getTrackDecodeStatus] forKey:@"Track.Status"];
             [data setObject:[self.mMagTek getCardStatus] forKey:@"Card.Status"];
             [data setObject:[self.mMagTek getEncryptionStatus] forKey:@"Encryption.Status"];
@@ -343,8 +342,8 @@
         [self.mMagTek clearBuffers];
         
         CDVPluginResult* pluginResult = nil;
-		pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:data];
-		[self.commandDelegate sendPluginResult:pluginResult callbackId:self.mTrackDataListenerCallbackId];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:data];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.mTrackDataListenerCallbackId];
     }
 }
 
@@ -354,7 +353,7 @@
     NSLog(@"onDataEvent: %i", [status intValue]);
 #endif
     
-	switch ([status intValue])
+    switch ([status intValue])
     {
         case TRANS_STATUS_OK:
         {
